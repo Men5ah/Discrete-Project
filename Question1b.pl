@@ -18,17 +18,30 @@ Clues
 karasDates(Sol) :- length(Sol, 4),
     %Preamble
     member((Vincent,_,_,_), Sol), member((Eddie,_,_,_), Sol), member((Zachary,_,_,_), Sol), member((Wayne,_,_,_), Sol),
+
     member((_,22,_,_), Sol), member((_,23,_,_), Sol), member((_,24,_,_), Sol), member((_,25,_,_), Sol),
+
     member((_,_,banker,_), Sol), member((_,_,firefighter,_), Sol), member((_,_,lawyer,_), Sol), member((_,_,teacher,_), Sol),
-    member((_,_,_,bowling alley), Sol), member((_,_,_,county_fair), Sol), member((_,_,_,movies), Sol), member((_,_,_,restaurant), Sol),
-    
-    
+
+    member((_,_,_,bowling_alley), Sol), member((_,_,_,county_fair), Sol), member((_,_,_,movies), Sol), member((_,_,_,restaurant), Sol),
+
+
     %Clues
     (member((Vincent,22,_,_), Sol);member((Vincent,23,_,_), Sol);member((Vincent,25,_,_), Sol)), %Clue1
 
     (member((_,25,_,movies), Sol)), %clue2
 
-    (member((_,23,lawyer,_), Sol), member((Wayne,_,_,county_fair),Sol);member((Wayne,23,_,_), Sol), member((_,_,lawyer,county_fair),Sol)), %Clue3
+
+
+
+    /*(member((_,23,lawyer,_), Sol), (member((Wayne,_,_,county_fair),Sol), \+ member((_,23,_,county_fair), Sol)); (member((Wayne,23,_,_), Sol), \+ member((_,_,lawyer,23), Sol))), %Clue3*/
+
+    (member((_,23,lawyer,_), Sol), member((Wayne,_,_,county_fair), Sol), \+ member((_,23,_,county_fair), Sol)); (member((Wayne,23,_,_), Sol), \+ member((_,_,lawyer,23), Sol)),
+
+    %(member((_,23,lawyer,_), Sol), member((Wayne,_,_,county_fair),Sol);member((Wayne,23,_,_), Sol), member((_,_,lawyer,county_fair),Sol)),
+
+
+
 
     (member((Eddie,_,lawyer,_), Sol);member((Eddie,_,_,movies), Sol)), %Clue4
 
@@ -38,4 +51,4 @@ karasDates(Sol) :- length(Sol, 4),
 
     member((_,_,firefighter,movies), Sol), %Clue7
 
-    (member((_,23,teacher,_), Sol);member((_,23,_,restaurant), Sol)), %Clue8
+    (member((_,23,teacher,_), Sol);member((_,23,_,restaurant), Sol)). %Clue8
