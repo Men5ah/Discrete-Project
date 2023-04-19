@@ -1,25 +1,48 @@
-karasDate(Sol) :-
-    length(Sol, 4),
-    member(date(vincent, AgeV, ProfV, LocV), Sol),
-    member(date(eddie, AgeE, ProfE, LocE), Sol),
-    member(date(wayne, AgeW, ProfW, LocW), Sol),
-    member(date(zachary, AgeZ, ProfZ, LocZ), Sol),
-    % Rule 1: Vincent's age is either 22 or 23.
-    (AgeV = 22 ; AgeV = 23),
-    % Rule 2: The 25-year-old took Kara to the movies.
-    member(date(_, 25, _, movies), Sol),
-    % Rule 3: One of the lawyer and Wayne is 23 and took Kara to the county fair.
-    ( (ProfE = lawyer, AgeE \= 23, LocE \= county_fair, (ProfW = teacher, AgeW = 23, LocW = county_fair ; ProfW = lawyer, AgeW \= 23, LocW \= county_fair)) ;
-      (ProfW = lawyer, AgeW = 23, LocW = county_fair, (ProfE = teacher, AgeE \= 23, LocE \= county_fair ; ProfE = lawyer, AgeE \= 23, LocE \= county_fair)) ),
-    % Rule 4: Eddie is either the lawyer or the one who took Kara to the movies.
-    ( (ProfE = lawyer, LocE \= movies, (ProfZ = banker, AgeZ = 25, LocZ \= movies, (ProfV = teacher, AgeV \= 24, LocV \= movies ; ProfV = firefighter, AgeV = 25, LocV = movies))) ;
-      (LocE = movies, (ProfZ = banker, AgeZ = 25, LocZ \= lawyer, (ProfV = teacher, AgeV \= 24, LocV \= lawyer ; ProfV = firefighter, AgeV = 25, LocV = lawyer))) ),
-    % Rule 5: Eddie is younger than the one who took Kara to the restaurant.
-    (AgeE < AgeZ),
-    % Rule 6: Eddie is 1 year younger than the banker.
-    ( (ProfE = banker, AgeZ is AgeE + 1) ; (ProfZ = banker, AgeE is AgeZ + 1) ),
-    % Rule 7: The gentleman who took Kara to the movies was the firefighter.
-    (LocZ \= movies, LocV \= movies, LocW \= movies, LocE \= firefighter, ProfZ = firefighter, LocZ = movies),
-    % Rule 8: The 23-year-old is either the teacher or the one who took Kara to the restaurant.
-    ( (AgeW = 23, (ProfV = teacher, LocV \= restaurant ; ProfZ = teacher, LocZ \= restaurant)) ;
-    ( (ProfV \= teacher, LocV = restaurant ; ProfZ \= teacher, LocZ = restaurant), AgeW \= 23) ).
+solve(DateList) :-
+  DateList = [ [VincentAge, VincentProfession, VincentLocation],
+               [EddieAge, EddieProfession, EddieLocation],
+               [ZacharyAge, ZacharyProfession, ZacharyLocation],
+               [WayneAge, WayneProfession, WayneLocation] ],
+  AgeList = [VincentAge, EddieAge, ZacharyAge, WayneAge],
+  ProfessionList = [VincentProfession, EddieProfession, ZacharyProfession, WayneProfession],
+  LocationList = [VincentLocation, EddieLocation, ZacharyLocation, WayneLocation],
+
+  % Clue 1
+  VincentAge \= 24,
+
+  % Clue 2
+  member([25, _, movies], DateList),
+
+  % Clue 3
+  ( (WayneAge = 23, WayneLocation = county_fair, (LawyerAge = 23, LawyerProfession = lawyer ; LawyerAge =\= 23, LawyerProfession \= lawyer))
+  ; (LawyerAge = 23, LawyerLocation = county_fair, (WayneAge =\= 23, WayneProfession \= lawyer ; WayneAge = 23, WayneProfession = lawyer)) ),
+
+  % Clue 4
+  ( (EddieAge \= 25, member([25, _, movies], DateList), (EddieProfession = lawyer ; EddieLocation \= movies))
+  ; (EddieProfession = lawyer, EddieLocation \= movies, (member([25, _, movies], DateList), EddieAge \= 25 ; EddieAge = 25, member([25, lawyer, _], DateList))) ),
+
+  % Clue 5
+  member([_, _, restaurant], DateList),
+  member([EddieAge, _, _], DateList),
+  EddieAge < 25,
+
+  % Clue 6
+  member([EddieAge, banker, _], DateList),
+
+  % Clue 7
+  member([25, firefighter, movies], DateList),
+
+  % Clue 8
+  ( (TeacherAge = 23, TeacherLocation = restaurant, (EddieAge =\= 23, EddieProfession \= teacher ; EddieAge = 23, EddieProfession = teacher))
+  ; (EddieProfession \= teacher, EddieLocation \= restaurant, (TeacherAge = 23, TeacherLocation = restaurant ; TeacherAge \= 23, TeacherLocation \= restaurant)) ),
+
+  % Create lists for each variable and make sure they are distinct
+  append(DateList, [AgeList, ProfessionList, LocationList], Vars),
+  Vars ins 22..25,
+  all_distinct(AgeList),
+  all_distinct(ProfessionList),
+  all_distinct(LocationList),
+
+  % Label the variables and return the result
+  label(Vars),
+  write(DateList).
